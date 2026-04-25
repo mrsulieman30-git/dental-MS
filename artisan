@@ -1,18 +1,15 @@
 #!/usr/bin/env php
 <?php
 
-use Illuminate\Foundation\Application;
-use Symfony\Component\Console\Input\ArgvInput;
+$app = $argv[1] ?? 'dentalos';
 
-define('LARAVEL_START', microtime(true));
-
-// Register the Composer autoloader...
-require __DIR__.'/vendor/autoload.php';
-
-// Bootstrap Laravel and handle the command...
-/** @var Application $app */
-$app = require_once __DIR__.'/bootstrap/app.php';
-
-$status = $app->handleCommand(new ArgvInput);
-
-exit($status);
+if (in_array($app, ['api', 'web'])) {
+    $command = array_slice($argv, 2);
+    $path = __DIR__ . "/apps/{$app}/artisan";
+    passthru("php \"{$path}\" " . implode(' ', $command));
+} else {
+    // Default to dentalos if not api or web
+    $command = (in_array($argv[1] ?? '', ['dentalos'])) ? array_slice($argv, 2) : array_slice($argv, 1);
+    $path = __DIR__ . "/dentalos/artisan";
+    passthru("php \"{$path}\" " . implode(' ', $command));
+}

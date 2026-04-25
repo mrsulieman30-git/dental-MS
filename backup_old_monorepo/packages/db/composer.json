@@ -1,0 +1,12 @@
+{
+    "name": "dentalos/db",
+    "description": "Shared database migrations and schema helpers",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DentalOS\\DB\\": ""
+        }
+    }
+}

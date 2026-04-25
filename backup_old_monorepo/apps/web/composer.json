@@ -1,0 +1,27 @@
+{
+    "name": "dentalos/web",
+    "type": "project",
+    "description": "DentalOS Web Frontend (Inertia/Vue)",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "laravel/inertia-laravel": "^1.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

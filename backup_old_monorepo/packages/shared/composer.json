@@ -1,0 +1,12 @@
+{
+    "name": "dentalos/shared",
+    "description": "Shared PHP utilities and constants",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DentalOS\\": "src/"
+        }
+    }
+}
