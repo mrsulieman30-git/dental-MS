@@ -11,7 +11,7 @@ class LedgerEntry extends Model
         'patient_id', 'location_id', 'entry_type', 'entry_date',
         'amount', 'description', 'cdt_code_id', 'appointment_id',
         'claim_id', 'payment_id', 'adjustment_type_id', 'created_by',
-        'is_void', 'voided_at', 'voided_by', 'notes'
+        'is_void', 'voided_at', 'voided_by', 'notes', 'parent_entry_id'
     ];
 
     protected $casts = [
@@ -30,4 +30,6 @@ class LedgerEntry extends Model
     public function adjustmentType(): BelongsTo { return $this->belongsTo(AdjustmentType::class); }
     public function creator(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
     public function voider(): BelongsTo { return $this->belongsTo(User::class, 'voided_by'); }
+    public function parentEntry(): BelongsTo { return $this->belongsTo(LedgerEntry::class, 'parent_entry_id'); }
+    public function children(): HasMany { return $this->hasMany(LedgerEntry::class, 'parent_entry_id'); }
 }

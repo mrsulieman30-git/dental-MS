@@ -21,11 +21,11 @@ class Patient extends Model
         'preferred_communication', 'is_new_patient', 'first_visit_date',
         'last_visit_date', 'next_appointment_date', 'patient_since_date',
         'source', 'referred_by_patient_id', 'referred_by_source',
-        'has_portal_account', 'portal_user_id', 'is_vip', 'needs_interpreter',
-        'has_special_needs', 'special_needs_notes', 'internal_notes',
-        'billing_notes', 'do_not_call', 'do_not_text', 'do_not_email',
-        'is_hipaa_signed', 'hipaa_signed_at', 'is_minor', 'guardian_name',
-        'guardian_relationship', 'guardian_phone'
+        'is_vip', 'needs_interpreter', 'has_special_needs', 'special_needs_notes',
+        'internal_notes', 'billing_notes', 'do_not_call', 'do_not_text',
+        'do_not_email', 'is_hipaa_signed', 'hipaa_signed_at', 'is_minor',
+        'guardian_name', 'guardian_relationship', 'guardian_phone',
+        'stripe_customer_id', 'stripe_payment_method_id', 'last_statement_at'
     ];
 
     protected $casts = [
@@ -45,7 +45,10 @@ class Patient extends Model
         'do_not_email' => 'boolean',
         'is_hipaa_signed' => 'boolean',
         'is_minor' => 'boolean',
+        'last_statement_at' => 'datetime',
     ];
+
+    protected $appends = ['full_name', 'age', 'balance'];
 
     protected static function booted()
     {
@@ -69,8 +72,12 @@ class Patient extends Model
     public function chart(): HasOne { return $this->hasOne(DentalChart::class); }
     public function medicalHistories(): HasMany { return $this->hasMany(MedicalHistory::class); }
     public function insurance(): HasMany { return $this->hasMany(PatientInsurance::class); }
+    public function primaryInsurance() { return $this->insurance()->where('is_primary', true)->first(); }
     public function ledgerEntries(): HasMany { return $this->hasMany(LedgerEntry::class); }
-    public function treatmentPlans(): HasMany { return $this->hasMany(TreatmentPlan::class); }
+    public function payments(): HasMany { return $this->hasMany(Payment::class); }
+    public function claims(): HasMany { return $this->hasMany(Claim::class); }
+    public function paymentPlans(): HasMany { return $this->hasMany(PaymentPlan::class); }
+    public function statements(): HasMany { return $this->hasMany(Statement::class); }
     public function clinicalNotes(): HasMany { return $this->hasMany(ClinicalNote::class); }
     public function perioCharts(): HasMany { return $this->hasMany(PerioChart::class); }
     public function imagingSeries(): HasMany { return $this->hasMany(ImagingSeries::class); }
@@ -78,6 +85,7 @@ class Patient extends Model
 
     public function getFullNameAttribute(): string { return "{$this->first_name} {$this->last_name}"; }
     public function getAgeAttribute(): int { return Carbon::parse($this->date_of_birth)->age; }
+    public function getBalanceAttribute(): float { return (float) $this->ledgerEntries()->where('is_void', false)->sum('amount'); }
 
     public function scopeActive($query) { return $query->where('status', 'active'); }
     public function scopeForTenant($query, $tenantId) { return $query->where('tenant_id', $tenantId); }

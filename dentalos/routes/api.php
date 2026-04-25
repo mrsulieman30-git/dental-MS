@@ -16,6 +16,9 @@ use App\Http\Controllers\Api\PreAuthController;
 use App\Http\Controllers\Api\InsuranceCarrierController;
 use App\Http\Controllers\Api\FeeScheduleController;
 use App\Http\Controllers\Api\CdtCodeController;
+use App\Http\Controllers\Api\BillingController;
+use App\Http\Controllers\Api\ClaimController;
+use App\Http\Controllers\Api\EraController;
 use Illuminate\Support\Facades\Route;
 
 // Public Auth Routes
@@ -85,11 +88,38 @@ Route::middleware(['auth:sanctum', 'permission:SCHEDULE_READ'])->group(function 
         Route::post('images/{image}/share', [ImagingController::class, 'shareLink']);
     });
 
-    // Billing
+    // Billing & Payments
     Route::prefix('billing')->group(function () {
-        Route::get('patients/{patient}/ledger', [LedgerController::class, 'index']);
-        Route::post('payments', [PaymentController::class, 'store']);
+        Route::get('patients/{patient}/ledger', [BillingController::class, 'ledger']);
+        Route::post('patients/{patient}/ledger/charge', [BillingController::class, 'postCharge']);
+        Route::post('patients/{patient}/ledger/adjustment', [BillingController::class, 'postAdjustment']);
+        Route::post('ledger/{entry}/void', [BillingController::class, 'voidEntry']);
+        Route::get('dashboard/kpis', [BillingController::class, 'dashboardKpis']);
+        Route::get('dashboard/aging', [BillingController::class, 'agingReport']);
+        
+        Route::post('patients/{patient}/payments', [PaymentController::class, 'store']);
+        Route::post('patients/{patient}/payments/intent', [PaymentController::class, 'createPaymentIntent']);
+        Route::post('payments/{payment}/refund', [PaymentController::class, 'refund']);
     });
+
+    // Claims
+    Route::prefix('claims')->group(function () {
+        Route::get('/', [ClaimController::class, 'index']);
+        Route::get('/{claim}', [ClaimController::class, 'show']);
+        Route::post('/{claim}/scrub', [ClaimController::class, 'scrub']);
+        Route::post('/{claim}/submit', [ClaimController::class, 'submit']);
+        Route::get('/{claim}/preview', [ClaimController::class, 'preview']);
+        Route::post('/{claim}/attachments', [ClaimController::class, 'addAttachment']);
+        Route::post('/{claim}/generate-secondary', [ClaimController::class, 'generateSecondary']);
+    });
+
+    // Appointment Claim Integration
+    Route::post('appointments/{appointment}/generate-claim', [ClaimController::class, 'generateFromAppointment']);
+
+    // ERAs
+    Route::get('eras', [EraController::class, 'index']);
+    Route::post('eras/upload', [EraController::class, 'upload']);
+    Route::post('eras/{era}/post', [EraController::class, 'post']);
 
     // Treatment Plans
     Route::get('patients/{patient}/treatment-plans', [TreatmentPlanController::class, 'index']);

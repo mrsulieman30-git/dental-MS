@@ -11,11 +11,11 @@ class Claim extends Model
     protected $fillable = [
         'tenant_id', 'claim_number', 'patient_id', 'insurance_id',
         'appointment_id', 'rendering_provider_id', 'billing_provider_id',
-        'location_id', 'claim_type', 'status', 'total_billed',
-        'total_paid', 'patient_portion', 'write_off', 'submitted_at',
-        'paid_at', 'check_number', 'check_date', 'era_id',
-        'clearinghouse_claim_id', 'rejection_codes', 'denial_reason',
-        'appeal_notes', 'pre_auth_number'
+        'location_id', 'claim_type', 'status', 'is_scrubbed', 'scrubbing_errors',
+        'total_billed', 'total_paid', 'patient_portion', 'write_off',
+        'submitted_at', 'paid_at', 'check_number', 'check_date', 'era_id',
+        'secondary_claim_id', 'claim_form_path', 'clearinghouse_claim_id',
+        'rejection_codes', 'denial_reason', 'appeal_notes', 'pre_auth_number'
     ];
 
     protected $casts = [
@@ -26,8 +26,13 @@ class Claim extends Model
         'submitted_at' => 'datetime',
         'paid_at' => 'datetime',
         'check_date' => 'date',
+        'is_scrubbed' => 'boolean',
+        'scrubbing_errors' => 'array',
         'rejection_codes' => 'array',
     ];
+
+    public function secondaryClaim(): BelongsTo { return $this->belongsTo(Claim::class, 'secondary_claim_id'); }
+
 
     public function tenant(): BelongsTo { return $this->belongsTo(Tenant::class); }
     public function patient(): BelongsTo { return $this->belongsTo(Patient::class); }
